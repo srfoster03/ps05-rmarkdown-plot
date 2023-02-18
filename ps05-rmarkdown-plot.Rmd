@@ -10,20 +10,42 @@ output: html_document
 1. (1pt) For solving the problems, and answering the questions, create a new rmarkdown document with an appropriate title. See https://faculty.washington.edu/otoomet/info201-book/
 r-markdown.html#r-markdown-rstudio-creating.
 
+```{r, message=FALSE}
+library(tidyverse)
+```
 
 
 2. (2pt) Load data. How many rows/columns do we have?
 
+```{r, message=FALSE}
+gap <- read_delim("gapminder.csv.bz2")
+```
 
+```{r}
+nrow(gap)
+ncol(gap)
+```
 
 3. (2pt) Print a small sample of data. Does it look OK?
 
+Yes, the sample of the data looks okay. It shows each of the column names and prints
+out a sample of 5 rows of the data.
 
+```{r}
+sample_n(gap, 5)
+```
 
 ### 2 Descriptive statistics (15pt)
 1. (3pt) How many countries are there in the dataset? Analyze all three: iso3, iso2 and name.
 
+```{r}
+iso2uni <- n_distinct(gap$iso2)
+iso3uni <- n_distinct(gap$iso3)
+nameuni <- n_distinct(gap$name)
 
+cat("There are", nameuni, "unique country names, but there are", iso2uni, "and", iso3uni, 
+    "two and three letter abbreviations for countries, meaning there is a possibility of an error in the data.")
+```
 
 2. If you did this correctly, you saw that there are more names than iso-2 codes, and there are
 even more iso3 -codes. What is going on? Can you find it out?
@@ -48,17 +70,61 @@ Hint: two of these entitites are CHANISL and NLD CURACAO.
 1. (2pt) How many missing co2 emissions are there for each year? Analyze both missing CO2
 and co2_PC. Which years have most missing data?
 
+```{r}
+missingco2 <- gap %>%
+  group_by(time) %>%
+  summarise(missing_CO2_emissions = sum(is.na(co2)),
+            missing_CO2_PC = sum(is.na(co2_PC)))
+
+missingco2 %>%
+  arrange(desc(missing_CO2_emissions + missing_CO2_PC)) %>%
+  head(10)
+```
 
 
 2. (5pt) Make a plot of total CO2 emissions over time for the U.S, China, and India. Add a few
 more countries of your choice. Explain what do you see.
 
+```{r}
+gap_subset <- gap %>%
+  filter(name %in% c("United States of America", "China", "India", "Italy", "Japan", "Germany"))
+
+ggplot(gap_subset) +
+  geom_line(aes(x = time, y = co2, color = name)) +
+  labs(title = "Total CO2 Emissions by Country Over Time",
+       x = "Year",
+       y = "CO2 Emissions (Million Metric Tons)") +
+  theme_bw()
+
+```
+
+__This graph shows the growth (or decline) in CO2 emissions for China, Germany, 
+India, Italy, Japan, and the U.S. Each line represents the amount of CO2 emissions
+that have been emitted, and each different colored line represents a different country.
+The biggest things that I notice is that China rapidly jumped into leading CO2 emissions
+after 2000. They were already high up there, but recently it has taken a huge leap,
+but started to decline again in 2015. Around 2005, the U.S. began a decline in CO2 
+emissions. India has started incling on CO2 emissions. The rest of the countries seem to be
+very leveled with there CO2 emissions, no crazy jumps or declines, just steady.__
 
 
 3. (5pt) Now let’s analyze the CO2 emissions per capita (co2_PC). Make a similar plot of the
 same countries. What does this figure suggest?
 
+```{r}
+gap_subset2 <- gap %>%
+  filter(name %in% c("United States of America", "China", "India", "Italy", "Japan", "Germany"))
 
+ggplot(gap_subset2) +
+  geom_line(aes(x = time, y = co2_PC, color = name)) +
+  labs(title = "CO2 Emissions per Capita by Country Over Time",
+       x = "Year",
+       y = "CO2 Emissions per Capita (Metric Tons)") +
+  theme_bw()
+
+```
+
+This graph shows 
 
 4. (6pt) Compute average CO2 emissions per capita across the continents (assume region is the
 same as continent). Comment what do you see.
