@@ -26,7 +26,7 @@ nrow(gap)
 ncol(gap)
 ```
 
-3. (2pt) Print a small sample of data. Does it look OK?
+**3. (2pt) Print a small sample of data. Does it look OK?**
 
 Yes, the sample of the data looks okay. It shows each of the column names and prints
 out a sample of 5 rows of the data.
@@ -36,7 +36,7 @@ sample_n(gap, 5)
 ```
 
 ### 2 Descriptive statistics (15pt)
-1. (3pt) How many countries are there in the dataset? Analyze all three: iso3, iso2 and name.
+**1. (3pt) How many countries are there in the dataset? Analyze all three: iso3, iso2 and name.**
 
 ```{r}
 iso2uni <- n_distinct(gap$iso2)
@@ -47,28 +47,23 @@ cat("There are", nameuni, "unique country names, but there are", iso2uni, "and",
     "two and three letter abbreviations for countries, meaning there is a possibility of an error in the data.")
 ```
 
-2. If you did this correctly, you saw that there are more names than iso-2 codes, and there are
-even more iso3 -codes. What is going on? Can you find it out?
+**2. If you did this correctly, you saw that there are more names than iso-2 codes, and there are even more iso3 -codes. What is going on? Can you find it out?**
 
-(a) (5pt) Find how many names are there for each iso-2 code. Are there any iso-2 codes that
-correspond to more than one name? What are these countries?
+**(a) (5pt) Find how many names are there for each iso-2 code. Are there any iso-2 codes that correspond to more than one name? What are these countries?**
 
 
 
-(b) (5pt) Now repeat the same for name and iso3-code. Are there country names that have
-more than one iso3-code? What are these countries?
-Hint: two of these entitites are CHANISL and NLD CURACAO.
+**(b) (5pt) Now repeat the same for name and iso3-code. Are there country names that have more than one iso3-code? What are these countries? Hint: two of these entitites are CHANISL and NLD CURACAO.**
 
 
 
-3. (2pt) What is the minimum and maximum year in these data?
+**3. (2pt) What is the minimum and maximum year in these data?**
 
 
 
 ### 3 CO2 emissions (30pt)
 #### Next, let’s analyze CO2 emissions.
-1. (2pt) How many missing co2 emissions are there for each year? Analyze both missing CO2
-and co2_PC. Which years have most missing data?
+**1. (2pt) How many missing co2 emissions are there for each year? Analyze both missing CO2 and co2_PC. Which years have most missing data?**
 
 ```{r}
 missingco2 <- gap %>%
@@ -77,13 +72,15 @@ missingco2 <- gap %>%
             missing_CO2_PC = sum(is.na(co2_PC)))
 
 missingco2 %>%
-  arrange(desc(missing_CO2_emissions + missing_CO2_PC)) %>%
-  head(10)
+  arrange(desc(missing_CO2_emissions + missing_CO2_PC)) %>% 
+  head(5)
 ```
+There are missing CO2 emissions for almost every year, however, the years that
+have the most missing data is 2017, 2018, and 2019 with 217 missing values. The next
+few being 1960 and 1961 with 60 missing values.
 
 
-2. (5pt) Make a plot of total CO2 emissions over time for the U.S, China, and India. Add a few
-more countries of your choice. Explain what do you see.
+**2. (5pt) Make a plot of total CO2 emissions over time for the U.S, China, and India. Add a few more countries of your choice. Explain what do you see.**
 
 ```{r}
 gap_subset <- gap %>%
@@ -98,18 +95,17 @@ ggplot(gap_subset) +
 
 ```
 
-__This graph shows the growth (or decline) in CO2 emissions for China, Germany, 
+This graph shows the growth (or decline) in CO2 emissions for China, Germany, 
 India, Italy, Japan, and the U.S. Each line represents the amount of CO2 emissions
 that have been emitted, and each different colored line represents a different country.
 The biggest things that I notice is that China rapidly jumped into leading CO2 emissions
 after 2000. They were already high up there, but recently it has taken a huge leap,
 but started to decline again in 2015. Around 2005, the U.S. began a decline in CO2 
 emissions. India has started incling on CO2 emissions. The rest of the countries seem to be
-very leveled with there CO2 emissions, no crazy jumps or declines, just steady.__
+very leveled with there CO2 emissions, no crazy jumps or declines, just steady.
 
 
-3. (5pt) Now let’s analyze the CO2 emissions per capita (co2_PC). Make a similar plot of the
-same countries. What does this figure suggest?
+**3. (5pt) Now let’s analyze the CO2 emissions per capita (co2_PC). Make a similar plot of the same countries. What does this figure suggest?**
 
 ```{r}
 gap_subset2 <- gap %>%
@@ -124,39 +120,126 @@ ggplot(gap_subset2) +
 
 ```
 
-This graph shows 
+With the same layout as the graph above, this graph shows a steady incline over 
+the last 50 years in CO2 emissions per capita for India, China, Italy, and Japan. 
+Germany has been declining since 1990. Although in the graph above the U.S. was not 
+the largest, they are now a significant amount above each of the countries, 
+but have started a decline. We were at our highest around 1975. The comparison of both
+graphs and the U.S. suggests that even though we do not have the highest overall CO2
+emissions, our emissions per person is one of the largest in the world. This means that
+when we hear statistics, if it is not per capita, then the U.S. will not be considered the largest
+even though per person we have the largest emissions.
 
-4. (6pt) Compute average CO2 emissions per capita across the continents (assume region is the
-same as continent). Comment what do you see.
-Note: just compute averages over countries and ignore the fact that countries are of different
-size.
-Hint: Americas 2016 should be 4.80.
 
+**4. (6pt) Compute average CO2 emissions per capita across the continents (assume region is the same as continent). Comment what do you see. Note: just compute averages over countries and ignore the fact that countries are of different size. Hint: Americas 2016 should be 4.80.**
 
+```{r}
+region_co2 <- gap %>% 
+  filter(!is.na(co2_PC)) %>% 
+  filter(!is.na(region)) %>% 
+  group_by(region, time) %>% 
+  summarise(avg_co2_PC = mean(co2_PC))
+ggplot(region_co2)+
+  geom_line(aes(x = time, y = avg_co2_PC, color = region)) +
+  labs(title = "CO2 Emissions per Capita in Each Region",
+       x = "Year",
+       y = "Average CO2 Emissions per Capita") +
+    theme_bw()
+```
+In this graph, I see one line for each of the five regions. the lines stretch out over the 
+years (x axis) and depending on there height, is what there average CO2 emissions
+per capita will be for that year. It looks like Americas had a spike up in average
+CO2 emissions around 1975, but have since then dropped below Europe and Asia. Every
+continent seems to be steady in there average emissions, and as a whole look to be declining.
+Africa has been steady since 1960, with barely any change in there emissions per capita. 
 
-5. (7pt) Make a barplot where you show the previous results–average CO2 emissions per capita
-across continents in 1960 and 2016.
-Hint: it should look something along these lines:
+**5. (7pt) Make a barplot where you show the previous results–average CO2 emissions per capita across continents in 1960 and 2016. Hint: it should look something along these lines:**
 
+```{r}
+gap %>% 
+  filter(time %in% c(1960, 2016), !is.na(region), !is.na(co2_PC)) %>% 
+  group_by(time, region) %>% 
+  summarise(avg_co2_PC = mean(co2_PC)) %>% 
+  ggplot(aes(x = region, y = avg_co2_PC, fill = as.factor(time))) +
+  geom_col(position = "dodge") +
+  labs(title = "Average CO2 Emissions per Capita for Year and Continent",
+       x = "Continent",
+       y = "Average CO2 Emissions per Capita") +
+  scale_fill_discrete(name = "Year")
+```
 
 
 6. Which countries are the three largest, and three smallest CO2 emitters (in terms of CO2 per
 capita) in 2019 for each continent? (Assume region is continent).
 
+Because 2019 data is missing, I will take 2016 data instead...
 
+```{r}
+continent_top3 <- gap %>%
+  filter(time == 2016) %>% 
+  group_by(region) %>% 
+  arrange(desc(co2_PC)) %>% 
+  slice_head(n = 3) %>% 
+  select(name, region, co2_PC) %>% 
+  head(3)
+
+continent_top3
+```
+
+```{r}
+continent_bottom3 <- gap %>% 
+  filter(time == 2016)%>% 
+  group_by(region) %>% 
+  arrange(co2_PC) %>% 
+  slice_head(n = 3) %>% 
+  select(name, region, co2_PC) %>% 
+  head(3)
+
+continent_bottom3
+```
 
 ### 4 GDP per capita (50pt)
 #### Let’s look at GDP per capita (GDP_PC).
-1. (8pt) Make a scatterplot of GDP per capita versus life expectancy by country, 
+1. (8pt) Make a scatter plot of GDP per capita versus life expectancy by country, 
 using data for 1960. Make the point size dependent on the country size, and color those according to the
 continent. Feel free to adjust the plot in other ways to make it better.
 Comment what do you see there.
 
+```{r}
 
+ggplot(gap) +
+  geom_point(aes(x = GDP_PC, y = lifeExpectancy, color = region, size = totalPopulation)) +
+  scale_size_area(max_size = 10)
+  
+```
+
+I see on the x axis, GDP per capita, on the y axis, life expectancy, colored dots
+for each region, and the size of dot has to do with the population of the country it 
+represents. The curve of the dots suggests that the higher the GDP, the higher the life expectancy
+and vise versa. It also suggests that Asia is the biggest region, yet stays on the low end
+of GDP with a life expectancy differing from country to country. This scatterplot also shows that
+in each region there is a tail end(the country with the least everything) and a high end (a country
+that is wealthy with a high life expectancy). So even in regions there is poverty and a 
+value of life difference.
 
 2. (4pt) Make a similar plot, but this time use 2019 data only.
 
+```{r}
+gap1960 <- gap %>% 
+  filter(!is.na(region), time == 1960)
 
+
+ggplot(gap1960) +
+  geom_point(aes(x = GDP_PC, y = lifeExpectancy, color = region, size = totalPopulation)) +
+  scale_size_area(max_size = 10)
+```
+
+I see the the GDP per capita and life expectancy are effected by each other in 1960. It is shown
+that the higher the GDP per capita, the higher the life expectancy goes. It seems that population
+is not a huge factor in this graph. The biggest dots seem to be where GDP and life expectancy are
+low, but there are also medium sized dots where they are both high, along with smaller dots
+everywhere. I also can see that Africa has a low GDP and low life expectancy no matter
+the country, but all of the other regions have countries spread out across the scatterplot.
 
 3. (6pt) Compare these two plots and comment what do you see. How has world developed
 through the last 60 years?
