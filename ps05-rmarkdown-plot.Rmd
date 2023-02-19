@@ -4,28 +4,25 @@ author: "Sierra Foster"
 date: "2023-02-18"
 output: html_document
 ---
+<br>
 
-### 1 Load and check data (5pt)
-#### You first task is to do a very simple data check:
-1. (1pt) For solving the problems, and answering the questions, create a new rmarkdown document with an appropriate title. See https://faculty.washington.edu/otoomet/info201-book/
-r-markdown.html#r-markdown-rstudio-creating.
+### 1 Load and check data (5pt)   
+**1. (1pt) For solving the problems, and answering the questions, create a new rmarkdown document with an appropriate title.**
 
 ```{r, message=FALSE}
 library(tidyverse)
 ```
-
-
-2. (2pt) Load data. How many rows/columns do we have?
+<br>
+<br>
+**2. (2pt) Load data. How many rows/columns do we have?**
 
 ```{r, message=FALSE}
 gap <- read_delim("gapminder.csv.bz2")
-```
 
-```{r}
-nrow(gap)
-ncol(gap)
+cat("We have", nrow(gap), "rows and", ncol(gap), "columns in the dataset.")
 ```
-
+<br>
+<br>
 **3. (2pt) Print a small sample of data. Does it look OK?**
 
 Yes, the sample of the data looks okay. It shows each of the column names and prints
@@ -34,8 +31,9 @@ out a sample of 5 rows of the data.
 ```{r}
 sample_n(gap, 5)
 ```
+<br>
 
-### 2 Descriptive statistics (15pt)
+### 2 Descriptive statistics (15pt)  
 **1. (3pt) How many countries are there in the dataset? Analyze all three: iso3, iso2 and name.**
 
 ```{r}
@@ -46,17 +44,24 @@ nameuni <- n_distinct(gap$name)
 cat("There are", nameuni, "unique country names, but there are", iso2uni, "and", iso3uni, 
     "two and three letter abbreviations for countries, meaning there is a possibility of an error in the data.")
 ```
-
+<br>
+<br>
 **2. If you did this correctly, you saw that there are more names than iso-2 codes, and there are even more iso3 -codes. What is going on? Can you find it out?**
 
 **(a) (5pt) Find how many names are there for each iso-2 code. Are there any iso-2 codes that correspond to more than one name? What are these countries?**
 
+Based on the codes below, I can conclude that there are 0 codes that correspond 
+to more than one name. Each country has 1 code and there are a total of 250 names
+with a unique iso2 code. The reason there is 1 less iso2 code then total number 
+of names is because one of the names probably has an "NA" field where there iso2
+code is supposed to go and there is a missing value.
+
 ```{r}
 gap %>% 
-  filter(!is.na(iso2)) %>% 
   group_by(iso2) %>% 
   summarise(num = n_distinct(name)) %>% 
   arrange(desc(num)) %>% 
+  count(iso2) %>% 
   head(5)
 
 gap %>% 
@@ -66,10 +71,15 @@ gap %>%
   arrange(desc(num)) %>% 
   filter(num>1)
 ```
-
-There are 0 codes that correspond to more than one name. Each country has 1 code
-
+<br>
+<br>
 **(b) (5pt) Now repeat the same for name and iso3-code. Are there country names that have more than one iso3-code? What are these countries? Hint: two of these entitites are CHANISL and NLD CURACAO.**
+
+There are countries that have more than one iso3-code, and the reason that there 
+is more iso3-codes then names is because there is "NA" fields where the country
+name is supposed to be. Meaning there is country names missing, but iso3-codes are
+present, thus adding more iso3-codes then names because there are missing name 
+values in the data set.
 
 ```{r}
 iso3_code <- gap %>% 
@@ -79,7 +89,8 @@ iso3_code <- gap %>%
 
 cat("There are", iso3_code$num, "countries that have more then one iso3-code. These countries are Chanisl, Nld Curacao, and NA values.")
 ```
-
+<br>
+<br>
 **3. (2pt) What is the minimum and maximum year in these data?**
 
 ```{r}
@@ -87,10 +98,16 @@ gap %>%
   filter(!is.na(time)) %>% 
   summarise(min = min(time), max = max(time))
 ```
+<br>
+
 
 ### 3 CO2 emissions (30pt)
 #### Next, let’s analyze CO2 emissions.
 **1. (2pt) How many missing co2 emissions are there for each year? Analyze both missing CO2 and co2_PC. Which years have most missing data?**
+
+There are missing CO2 emissions for almost every year, however, the years that
+have the most missing data is 2017, 2018, and 2019 with 217 missing values. The next
+few being 1960 and 1961 with 60 missing values.
 
 ```{r}
 missingco2 <- gap %>%
@@ -102,10 +119,7 @@ missingco2 %>%
   arrange(desc(missing_CO2_emissions + missing_CO2_PC)) %>% 
   head(5)
 ```
-There are missing CO2 emissions for almost every year, however, the years that
-have the most missing data is 2017, 2018, and 2019 with 217 missing values. The next
-few being 1960 and 1961 with 60 missing values.
-
+<br>
 
 **2. (5pt) Make a plot of total CO2 emissions over time for the U.S, China, and India. Add a few more countries of your choice. Explain what do you see.**
 
@@ -130,6 +144,8 @@ after 2000. They were already high up there, but recently it has taken a huge le
 but started to decline again in 2015. Around 2005, the U.S. began a decline in CO2 
 emissions. India has started incling on CO2 emissions. The rest of the countries seem to be
 very leveled with there CO2 emissions, no crazy jumps or declines, just steady.
+
+<br>
 
 
 **3. (5pt) Now let’s analyze the CO2 emissions per capita (co2_PC). Make a similar plot of the same countries. What does this figure suggest?**
@@ -157,6 +173,8 @@ emissions, our emissions per person is one of the largest in the world. This mea
 when we hear statistics, if it is not per capita, then the U.S. will not be considered the largest
 even though per person we have the largest emissions.
 
+<br>
+
 
 **4. (6pt) Compute average CO2 emissions per capita across the continents (assume region is the same as continent). Comment what do you see. Note: just compute averages over countries and ignore the fact that countries are of different size. Hint: Americas 2016 should be 4.80.**
 
@@ -180,6 +198,9 @@ CO2 emissions around 1975, but have since then dropped below Europe and Asia. Ev
 continent seems to be steady in there average emissions, and as a whole look to be declining.
 Africa has been steady since 1960, with barely any change in there emissions per capita. 
 
+<br>
+
+
 **5. (7pt) Make a barplot where you show the previous results–average CO2 emissions per capita across continents in 1960 and 2016. Hint: it should look something along these lines:**
 
 ```{r}
@@ -195,9 +216,10 @@ gap %>%
   scale_fill_discrete(name = "Year")
 ```
 
+<br>
 
-6. Which countries are the three largest, and three smallest CO2 emitters (in terms of CO2 per
-capita) in 2019 for each continent? (Assume region is continent).
+
+**6. Which countries are the three largest, and three smallest CO2 emitters (in terms of CO2 per capita) in 2019 for each continent? (Assume region is continent).**
 
 Because 2019 data is missing, I will take 2016 data instead...
 
@@ -224,6 +246,8 @@ continent_bottom3 <- gap %>%
 
 continent_bottom3
 ```
+<br>
+
 
 ### 4 GDP per capita (50pt)
 #### Let’s look at GDP per capita (GDP_PC).
@@ -233,11 +257,12 @@ continent. Feel free to adjust the plot in other ways to make it better.
 Comment what do you see there.
 
 ```{r}
+gap1960 <- gap %>% 
+  filter(!is.na(region), time == 1960)
 
-ggplot(gap) +
+ggplot(gap1960) +
   geom_point(aes(x = GDP_PC, y = lifeExpectancy, color = region, size = totalPopulation)) +
   scale_size_area(max_size = 10)
-  
 ```
 
 I see on the x axis, GDP per capita, on the y axis, life expectancy, colored dots
@@ -252,10 +277,10 @@ value of life difference.
 2. (4pt) Make a similar plot, but this time use 2019 data only.
 
 ```{r}
-gap1960 <- gap %>% 
-  filter(!is.na(region), time == 1960)
+gap2019 <- gap %>% 
+  filter(!is.na(region), time == 2019)
 
-ggplot(gap1960) +
+ggplot(gap2019) +
   geom_point(aes(x = GDP_PC, y = lifeExpectancy, color = region, size = totalPopulation)) +
   scale_size_area(max_size = 10)
 ```
@@ -374,11 +399,8 @@ countries <- gap %>%
   summarize(num = n()) %>% 
   filter(time %in% c(1960, 2019))
 
-countries
-
 cat("The rank divided by the number of countries for that year is as follows:\n",
     17/188, "for 1960 and", 46/196, "for 2019 based on number of countries.")
-
 ```
 
 
