@@ -51,15 +51,42 @@ cat("There are", nameuni, "unique country names, but there are", iso2uni, "and",
 
 **(a) (5pt) Find how many names are there for each iso-2 code. Are there any iso-2 codes that correspond to more than one name? What are these countries?**
 
+```{r}
+gap %>% 
+  filter(!is.na(iso2)) %>% 
+  group_by(iso2) %>% 
+  summarise(num = n_distinct(name)) %>% 
+  arrange(desc(num)) %>% 
+  head(5)
 
+gap %>% 
+  filter(!is.na(iso2)) %>% 
+  group_by(iso2) %>% 
+  summarise(num = n_distinct(name)) %>% 
+  arrange(desc(num)) %>% 
+  filter(num>1)
+```
+
+There are 0 codes that correspond to more than one name. Each country has 1 code
 
 **(b) (5pt) Now repeat the same for name and iso3-code. Are there country names that have more than one iso3-code? What are these countries? Hint: two of these entitites are CHANISL and NLD CURACAO.**
 
+```{r}
+iso3_code <- gap %>% 
+  group_by(name) %>% 
+  summarise(num = n_distinct(iso3)) %>% 
+  filter(num>1)
 
+cat("There are", iso3_code$num, "countries that have more then one iso3-code. These countries are Chanisl, Nld Curacao, and NA values.")
+```
 
 **3. (2pt) What is the minimum and maximum year in these data?**
 
-
+```{r}
+gap %>% 
+  filter(!is.na(time)) %>% 
+  summarise(min = min(time), max = max(time))
+```
 
 ### 3 CO2 emissions (30pt)
 #### Next, let’s analyze CO2 emissions.
@@ -228,7 +255,6 @@ value of life difference.
 gap1960 <- gap %>% 
   filter(!is.na(region), time == 1960)
 
-
 ggplot(gap1960) +
   geom_point(aes(x = GDP_PC, y = lifeExpectancy, color = region, size = totalPopulation)) +
   scale_size_area(max_size = 10)
@@ -244,14 +270,35 @@ the country, but all of the other regions have countries spread out across the s
 3. (6pt) Compare these two plots and comment what do you see. How has world developed
 through the last 60 years?
 
-
+When comparing these two plots I see that the pattern when comparing life expectancy
+and GDP is very noticeable. In the 1960 the pattern follow an upward curve, suggesting
+that with a high life expectancy, you have a high GDP. In the graph containing every year,
+this same pattern and shape exists. It shows that the world has not developed very much from 1960 in
+regards to life expectancy being a factor from a country/regions GDP. I also noticed
+that in the graph containg all years, most of the larger dots (countries with large population)
+were concentrated in the middle, meaning the larger countries have a harder time reaching that high,
+but are advanced enough to not drop to the bottom. In the 1960 graph this is not the case, and
+the different sized dots are spread around randomly, suggesting that population might not have
+had such a big factor in 1960 as it does now. The world has developed more towards a higher life 
+expectancy when the GDP is high and there population is on the smaller side. 
 
 4. (6pt) Compute the average life expectancy for each continent in 1960 and 2019. Do the results
 fit with what do you see on the figures?
 Note: here as average I mean just average over countries, ignore the fact that countries are of
 different size.
 
-
+```{r}
+gap %>% 
+  filter(!is.na(region)) %>% 
+  filter(!is.na(lifeExpectancy), time == c(1960, 2019)) %>% 
+  group_by(region, time) %>%
+  summarise(life_mean = mean(lifeExpectancy))
+```
+Yes, the results fit with what I see on the figures. The GDP over all of the years
+is consistnatly higher then the GDP in 1960. In the 1960 graph you can see how low
+the numbers for life expectancy and GDP per compared to the graph with ever year.
+It suggests that 1960 is a time when these factors were at there lowest across the
+world.
 
 5. (8pt) Compute the average LE growth from 1960-2019 across the continents. Show the results
 in the order of growth. Explain what do you see.
@@ -260,11 +307,39 @@ want to check out the lag() function. And do not forget to group data by contine
 using lag(), otherwise your results will be messed up! See https://faculty.washington.
 edu/otoomet/info201-book/dplyr.html#dplyr-helpers-compute.
 
-
+```{r}
+gap %>%
+  filter(time >= 1960 & time <= 2019) %>% 
+  filter(!is.na(region)) %>% 
+  group_by(region) %>%
+  mutate(avg_growth = (lifeExpectancy - lag(lifeExpectancy))/lag(lifeExpectancy)) %>%
+  summarise(avg_growth = mean(avg_growth, na.rm = TRUE)) %>%
+  arrange(desc(avg_growth))
+```
+From this code I see that Oceania has had the most growth in there life
+expectancy from 1960 to 2019. Europe and Americas are at the bottom. This is 
+suprising to me because of the idea that we are more developed in the healthcare and
+life expectancy area, however it seems that it might not be as true. It might be 
+the way people have changed over time (more lazy, unhealthy habits) that has made 
+Europe and Americas fall behind in the growth of life expectancy. It could also be
+that we are leveling out what technologies we have, and Africa and Oceania have just
+gotten access to those technologies thus making there life expectancy grow at a must
+faster rate then others due to them catching up to the other 3 continents. Also, even
+though Africa had one of the worst GDP to life expectancy ratios, they have had the 
+second most growth in life expectancy. 
 
 6. (6pt) Show the histogram of GDP per capita for years of 1960 and 2019. Try to put both
 histograms on the same graph, see how well you can do it!
 
+```{r}
+gap %>% 
+  filter(time %in% c(1960, 2019)) %>%
+  ggplot(aes(x = GDP_PC, fill = factor(time))) +
+  geom_histogram(position = "dodge", color = "black", binwidth = 5000) +
+  scale_fill_manual(values = c("blue", "red"), name = "Year", labels = c("1960", "2019")) +
+  labs(x = "GDP per capita", y = "Frequency", title = "Histogram of GDP per capita in 1960 and 2019") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
 
 
 7. (6pt) What was the ranking of US in terms of life expectancy in 1960 and in 2019? (When
@@ -272,15 +347,43 @@ counting from top.)
 Hint: check out the function rank()!
 Hint2: 17 for 1960.
 
+```{r}
+USrank <- gap %>%
+  filter(!is.na(name)) %>% 
+  group_by(time) %>%
+  mutate(rank = rank(-lifeExpectancy)) %>%
+  filter(name == "United States of America" & time %in% c(1960, 2019)) %>%
+  select(time, rank)
+USrank
+```
 
+The rank for the United States in terms of life expectancy was 17 in 1960
+and 46 in 2019, meaning other countries have surpassed us since 1960.
 
 8. (6pt) If you did this correctly, then you noticed that US ranking has been falling quite a
 bit. But we also have more countries in 2019–what about the relative rank divided by the
 corresponding number of countries that have LE data in the corresponding year?
 Hint: 0.0904 for 1960.
 
+```{r}
+
+countries <- gap %>%
+  filter(!is.na(lifeExpectancy)) %>%
+  filter(!is.na(name)) %>% 
+  group_by(time) %>%
+  summarize(num = n()) %>% 
+  filter(time %in% c(1960, 2019))
+
+countries
+
+cat("The rank divided by the number of countries for that year is as follows:\n",
+    17/188, "for 1960 and", 46/196, "for 2019 based on number of countries.")
+
+```
 
 
 #### Finally tell us how many hours did you spend on this PS.
 
+I spent about 10 hours on this assignment. I do a lot of stopping and going
+throughout the day.
 
