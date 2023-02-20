@@ -250,11 +250,7 @@ continent_bottom3
 
 
 ### 4 GDP per capita (50pt)
-#### Let’s look at GDP per capita (GDP_PC).
-1. (8pt) Make a scatter plot of GDP per capita versus life expectancy by country, 
-using data for 1960. Make the point size dependent on the country size, and color those according to the
-continent. Feel free to adjust the plot in other ways to make it better.
-Comment what do you see there.
+**1. (8pt) Make a scatter plot of GDP per capita versus life expectancy by country, using data for 1960. Make the point size dependent on the country size, and color those according to the continent. Feel free to adjust the plot in other ways to make it better. Comment what do you see there.**
 
 ```{r}
 gap1960 <- gap %>% 
@@ -273,8 +269,10 @@ of GDP with a life expectancy differing from country to country. This scatterplo
 in each region there is a tail end(the country with the least everything) and a high end (a country
 that is wealthy with a high life expectancy). So even in regions there is poverty and a 
 value of life difference.
+<br>
 
-2. (4pt) Make a similar plot, but this time use 2019 data only.
+
+**2. (4pt) Make a similar plot, but this time use 2019 data only.**
 
 ```{r}
 gap2019 <- gap %>% 
@@ -285,32 +283,34 @@ ggplot(gap2019) +
   scale_size_area(max_size = 10)
 ```
 
-I see the the GDP per capita and life expectancy are effected by each other in 1960. It is shown
+I see the the GDP per capita and life expectancy are effected by each other in 2019. It is shown
 that the higher the GDP per capita, the higher the life expectancy goes. It seems that population
-is not a huge factor in this graph. The biggest dots seem to be where GDP and life expectancy are
+is not a huge factor in this graph. The biggest dots seem to be where GDP is 
 low, but there are also medium sized dots where they are both high, along with smaller dots
 everywhere. I also can see that Africa has a low GDP and low life expectancy no matter
 the country, but all of the other regions have countries spread out across the scatterplot.
+<br>
 
-3. (6pt) Compare these two plots and comment what do you see. How has world developed
-through the last 60 years?
+
+**3. (6pt) Compare these two plots and comment what do you see. How has world developed through the last 60 years?**
 
 When comparing these two plots I see that the pattern when comparing life expectancy
-and GDP is very noticeable. In the 1960 the pattern follow an upward curve, suggesting
-that with a high life expectancy, you have a high GDP. In the graph containing every year,
+and GDP is very noticeable. In 1960 the pattern follow an upward curve, suggesting
+that with a high life expectancy, you have a high GDP. In the graph containing 2019,
 this same pattern and shape exists. It shows that the world has not developed very much from 1960 in
 regards to life expectancy being a factor from a country/regions GDP. I also noticed
-that in the graph containg all years, most of the larger dots (countries with large population)
+that in the graph containing all years, most of the larger dots (countries with large population)
 were concentrated in the middle, meaning the larger countries have a harder time reaching that high,
 but are advanced enough to not drop to the bottom. In the 1960 graph this is not the case, and
 the different sized dots are spread around randomly, suggesting that population might not have
 had such a big factor in 1960 as it does now. The world has developed more towards a higher life 
-expectancy when the GDP is high and there population is on the smaller side. 
+expectancy when the GDP is high and there population is on the smaller side. It is also
+important to note that Asia went from being almost the bottom in 1960 to higher up then most
+in 2019. They have made significant changes and growth.
+<br>
 
-4. (6pt) Compute the average life expectancy for each continent in 1960 and 2019. Do the results
-fit with what do you see on the figures?
-Note: here as average I mean just average over countries, ignore the fact that countries are of
-different size.
+
+**4. (6pt) Compute the average life expectancy for each continent in 1960 and 2019. Do the results fit with what do you see on the figures? Note: here as average I mean just average over countries, ignore the fact that countries are of different size.**
 
 ```{r}
 gap %>% 
@@ -324,13 +324,10 @@ is consistnatly higher then the GDP in 1960. In the 1960 graph you can see how l
 the numbers for life expectancy and GDP per compared to the graph with ever year.
 It suggests that 1960 is a time when these factors were at there lowest across the
 world.
+<br>
 
-5. (8pt) Compute the average LE growth from 1960-2019 across the continents. Show the results
-in the order of growth. Explain what do you see.
-Hint: these data (data in long form) is not the simplest to compute growth. But you may
-want to check out the lag() function. And do not forget to group data by continent when
-using lag(), otherwise your results will be messed up! See https://faculty.washington.
-edu/otoomet/info201-book/dplyr.html#dplyr-helpers-compute.
+
+**5. (8pt) Compute the average LE growth from 1960-2019 across the continents. Show the results in the order of growth. Explain what do you see.**
 
 ```{r}
 gap %>%
@@ -352,9 +349,10 @@ gotten access to those technologies thus making there life expectancy grow at a 
 faster rate then others due to them catching up to the other 3 continents. Also, even
 though Africa had one of the worst GDP to life expectancy ratios, they have had the 
 second most growth in life expectancy. 
+<br>
 
-6. (6pt) Show the histogram of GDP per capita for years of 1960 and 2019. Try to put both
-histograms on the same graph, see how well you can do it!
+
+**6. (6pt) Show the histogram of GDP per capita for years of 1960 and 2019. Try to put both histograms on the same graph, see how well you can do it!**
 
 ```{r}
 gap %>% 
@@ -365,12 +363,10 @@ gap %>%
   labs(x = "GDP per capita", y = "Frequency", title = "Histogram of GDP per capita in 1960 and 2019") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+<br>
 
 
-7. (6pt) What was the ranking of US in terms of life expectancy in 1960 and in 2019? (When
-counting from top.)
-Hint: check out the function rank()!
-Hint2: 17 for 1960.
+**7. (6pt) What was the ranking of US in terms of life expectancy in 1960 and in 2019? (When counting from top.) Hint: check out the function rank()! Hint2: 17 for 1960.**
 
 ```{r}
 USrank <- gap %>%
@@ -384,11 +380,10 @@ USrank
 
 The rank for the United States in terms of life expectancy was 17 in 1960
 and 46 in 2019, meaning other countries have surpassed us since 1960.
+<br>
 
-8. (6pt) If you did this correctly, then you noticed that US ranking has been falling quite a
-bit. But we also have more countries in 2019–what about the relative rank divided by the
-corresponding number of countries that have LE data in the corresponding year?
-Hint: 0.0904 for 1960.
+
+**8. (6pt) If you did this correctly, then you noticed that US ranking has been falling quite a bit. But we also have more countries in 2019–what about the relative rank divided by the corresponding number of countries that have LE data in the corresponding year? Hint: 0.0904 for 1960.**
 
 ```{r}
 
@@ -402,7 +397,7 @@ countries <- gap %>%
 cat("The rank divided by the number of countries for that year is as follows:\n",
     17/188, "for 1960 and", 46/196, "for 2019 based on number of countries.")
 ```
-
+<br>
 
 #### Finally tell us how many hours did you spend on this PS.
 
